@@ -32,6 +32,7 @@ interface Cycle {
 export function Home() {
   const [cycles, setCycles] = useState<Cycle[]>([])
   const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
+  const [amountSecondPassed, setAmountSecondsPassed] = useState(0) // tanto de segundos que já se passaram desde que o ciclo iniciou
 
 
   const { register, handleSubmit, watch, reset } = useForm<NewCycleFormatData>({
@@ -58,6 +59,15 @@ export function Home() {
   }
 
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
+
+  const totalSeconds = activeCycle ? activeCycle.minutes * 60 : 0; //Converte o numero de minutos em segundos
+  const currentSecond = activeCycle ? totalSeconds - amountSecondPassed : 0; //o tanto de tempo que já se passou
+
+  const minutesAmount = Math.floor(currentSecond / 60); //Arredondando numero pra baixo
+  const secondsAmout = currentSecond % 60; //quantos segundos eu tenho do resto da divisão acima
+
+  const minutes = String(minutesAmount).padStart(2, '0') //método que preenche uma string até um tamnho especifico com algum caracter, caso ela ainda não tenha o tamanho
+  const seconds = String(secondsAmout).padStart(2, '0')
 
   console.log(activeCycle)
 
@@ -98,11 +108,11 @@ export function Home() {
         </FormContainer>
 
         <CountDownContainer>
-          <span>0</span>
-          <span>0</span>
+          <span>{minutes[0]}</span>
+          <span>{minutes[1]}</span>
           <Separator>:</Separator>
-          <span>0</span>
-          <span>0</span>
+          <span>{seconds[0]}</span>
+          <span>{seconds[1]}</span>
         </CountDownContainer>
 
         <StartCountDownButton disabled={isSubmitDisabled} type="submit">
