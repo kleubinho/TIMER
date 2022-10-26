@@ -26,7 +26,7 @@ type NewCycleFormatData = zod.infer<typeof newCycleFormValidationSchema>
 interface Cycle {
   id: string;
   task: string;
-  minutes: number;
+  minutesAmount: number;
 }
 
 export function Home() {
@@ -49,7 +49,7 @@ export function Home() {
     const newCycle: Cycle = {
       id,
       task: data.task,
-      minutes: data.minutesAmount,
+      minutesAmount: data.minutesAmount,
     }
 
     setCycles((state) => [...state, newCycle])
@@ -60,7 +60,7 @@ export function Home() {
 
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
-  const totalSeconds = activeCycle ? activeCycle.minutes * 60 : 0; //Converte o numero de minutos em segundos
+  const totalSeconds = activeCycle ? activeCycle.minutesAmount  * 60 : 0; //Converte o numero de minutos em segundos
   const currentSecond = activeCycle ? totalSeconds - amountSecondPassed : 0; //o tanto de tempo que já se passou
 
   const minutesAmount = Math.floor(currentSecond / 60); //Arredondando numero pra baixo
