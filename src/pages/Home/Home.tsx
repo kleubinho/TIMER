@@ -1,7 +1,8 @@
 import { Play } from "phosphor-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as zod from 'zod'
+import * as zod from "zod";
+import { differenceInSeconds } from "date-fns";
 
 import {
   CountDownContainer,
@@ -12,67 +13,84 @@ import {
   StartCountDownButton,
   TaskInput,
 } from "./styles";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const newCycleFormValidationSchema = zod.object({
-  task: zod.string().min(1, 'Informe a tarefa'),
-  minutesAmount: zod.number()
-    .min(5, 'O ciclo precisa ser de no mínimo 5 minutos')
-    .max(60, 'O ciclo precisa ser de no maximo 60 minutos')
-})
+  task: zod.string().min(1, "Informe a tarefa"),
+  minutesAmount: zod
+    .number()
+    .min(5, "O ciclo precisa ser de no mínimo 5 minutos")
+    .max(60, "O ciclo precisa ser de no maximo 60 minutos"),
+});
 
-type NewCycleFormatData = zod.infer<typeof newCycleFormValidationSchema>
+type NewCycleFormatData = zod.infer<typeof newCycleFormValidationSchema>;
 
 interface Cycle {
   id: string;
   task: string;
   minutesAmount: number;
+  startDate: Date;
 }
 
 export function Home() {
-  const [cycles, setCycles] = useState<Cycle[]>([])
-  const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
-  const [amountSecondPassed, setAmountSecondsPassed] = useState(0) // tanto de segundos que já se passaram desde que o ciclo iniciou
-
+  const [cycles, setCycles] = useState<Cycle[]>([]);
+  const [activeCycleId, setActiveCycleId] = useState<string | null>(null);
+  const [amountSecondPassed, setAmountSecondsPassed] = useState(0); // total de segundos que já se passaram desde que um ciclo iniciou-se
 
   const { register, handleSubmit, watch, reset } = useForm<NewCycleFormatData>({
     resolver: zodResolver(newCycleFormValidationSchema),
     defaultValues: {
-      task: '',
+      task: "",
       minutesAmount: 0,
-    }
+    },
   });
 
+  const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId);
+
+  useEffect(() => {
+    let interval:number
+    if (activeCycle) {
+       interval = setInterval(() => {
+        setAmountSecondsPassed(
+          differenceInSeconds(new Date(), activeCycle.startDate)
+        );
+      }, 1000);
+    }
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [activeCycle]);
+
   function handleCreateNewCycle(data: NewCycleFormatData) {
-    const id = String(new Date().getTime())
+    const id = String(new Date().getTime());
 
     const newCycle: Cycle = {
       id,
       task: data.task,
       minutesAmount: data.minutesAmount,
-    }
+      startDate: new Date(),
+    };
 
-    setCycles((state) => [...state, newCycle])
-    setActiveCycleId(newCycle.id)
+    setCycles((state) => [...state, newCycle]);
+    setActiveCycleId(newCycle.id);
 
-    reset()
+    reset();
   }
 
-  const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
-
-  const totalSeconds = activeCycle ? activeCycle.minutesAmount  * 60 : 0; //Converte o numero de minutos em segundos
+  const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0; //Converte o numero de minutos em segundos
   const currentSecond = activeCycle ? totalSeconds - amountSecondPassed : 0; //o tanto de tempo que já se passou
 
   const minutesAmount = Math.floor(currentSecond / 60); //Arredondando numero pra baixo
   const secondsAmout = currentSecond % 60; //quantos segundos eu tenho do resto da divisão acima
 
-  const minutes = String(minutesAmount).padStart(2, '0') //método que preenche uma string até um tamnho especifico com algum caracter, caso ela ainda não tenha o tamanho
-  const seconds = String(secondsAmout).padStart(2, '0')
+  const minutes = String(minutesAmount).padStart(2, "0"); //método que preenche uma string até um tamnho especifico com algum caracter, caso ela ainda não tenha o tamanho
+  const seconds = String(secondsAmout).padStart(2, "0");
 
-  console.log(activeCycle)
+  console.log(activeCycle);
 
-  const task = watch('task')
-  const isSubmitDisabled = !task
+  const task = watch("task");
+  const isSubmitDisabled = !task;
 
   return (
     <HomeContainer>
