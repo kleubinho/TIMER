@@ -48,9 +48,9 @@ export function Home() {
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId);
 
   useEffect(() => {
-    let interval:number
+    let interval: number;
     if (activeCycle) {
-       interval = setInterval(() => {
+      interval = setInterval(() => {
         setAmountSecondsPassed(
           differenceInSeconds(new Date(), activeCycle.startDate)
         );
@@ -74,6 +74,7 @@ export function Home() {
 
     setCycles((state) => [...state, newCycle]);
     setActiveCycleId(newCycle.id);
+    setAmountSecondsPassed(0);
 
     reset();
   }
@@ -87,7 +88,11 @@ export function Home() {
   const minutes = String(minutesAmount).padStart(2, "0"); //método que preenche uma string até um tamnho especifico com algum caracter, caso ela ainda não tenha o tamanho
   const seconds = String(secondsAmout).padStart(2, "0");
 
-  console.log(activeCycle);
+  useEffect(() => {
+    if (activeCycle) {
+      document.title = `${minutes}:${seconds}`;
+    }
+  }, [minutes, seconds, activeCycle]);
 
   const task = watch("task");
   const isSubmitDisabled = !task;
