@@ -1,8 +1,10 @@
 import { differenceInSeconds } from "date-fns";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { CyclesContext } from "../../Home";
 import { CountDownContainer, Separator } from "./styles";
 
 export function CountDown(){
+  const {activeCycle, activeCycleId, markCurrentCycleAsFineshed} = useContext(CyclesContext)
   const [amountSecondPassed, setAmountSecondsPassed] = useState(0); // total de segundos que já se passaram desde que um ciclo iniciou-se
 
   const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0; //Converte o numero de minutos em segundos
@@ -17,15 +19,8 @@ export function CountDown(){
         );
 
         if (secondsDifference >= totalSeconds) {
-          setCycles(state =>
-            state.map((cycle) => {
-              if (cycle.id === activeCycleId) {
-                return { ...cycle, finishedDate: new Date() };
-              } else {
-                return cycle;
-              }
-            })
-          );
+          markCurrentCycleAsFineshed()
+
           setAmountSecondsPassed(totalSeconds)
            clearInterval(interval);
         } else {
@@ -37,7 +32,21 @@ export function CountDown(){
     return () => {
       clearInterval(interval);
     };
-  }, [activeCycle, totalSeconds, activeCycleId]);
+  }, [activeCycle, totalSeconds, activeCycleId, markCurrentCycleAsFineshed]);
+
+  const currentSecond = activeCycle ? totalSeconds - amountSecondPassed : 0; //o tanto de tempo que já se passou
+
+  const minutesAmount = Math.floor(currentSecond / 60); //Arredondando numero pra baixo
+  const secondsAmout = currentSecond % 60; //quantos segundos eu tenho do resto da divisão acima
+
+  const minutes = String(minutesAmount).padStart(2, "0"); //método que preenche uma string até um tamnho especifico com algum caracter, caso ela ainda não tenha o tamanho
+  const seconds = String(secondsAmout).padStart(2, "0");
+
+  useEffect(() => {
+    if (activeCycle) {
+      document.title = `${minutes}:${seconds}`;
+    }
+  }, [minutes, seconds, activeCycle]);
 
     return(
         <CountDownContainer>
