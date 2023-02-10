@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 export const HomeContainer = styled.main`
   flex: 1;
@@ -40,7 +40,7 @@ const BaseInput = styled.input`
 
   &:focus {
     box-shadow: none;
-    border-color: ${(props) => props.theme["green-500"]};;
+    border-color: ${(props) => props.theme["green-500"]};
   }
 
   &::placeholder {
@@ -52,7 +52,7 @@ export const TaskInput = styled(BaseInput)`
   flex: 1;
 
   &::-webkit-calendar-picker-indicator {
-    display: none!important;
+    display: none !important;
   }
 `;
 
@@ -87,11 +87,12 @@ export const Separator = styled.div`
   justify-content: center;
 `;
 
-export const StartCountDownButton = styled.button`
+export const BasetCountDownButton = styled.button`
   width: 100%;
   border: 0;
   padding: 1rem;
   border-radius: 8px;
+  color: ${(props) => props.theme["gray-100"]};
 
   display: flex;
   align-items: center;
@@ -102,14 +103,27 @@ export const StartCountDownButton = styled.button`
 
   cursor: pointer;
 
-  background: ${(props) => props.theme["green-500"]};
-  color: ${(props) => props.theme["gray-100"]};
-
   &:disabled {
     opacity: 0.7;
   }
+`;
 
-  &:not(:disabled):hover {
-    background: ${(props) => props.theme["green-700"]};
-  }
+export const StartCountDownButton = styled(BasetCountDownButton)`
+  ${({ theme }) => css`
+    background: ${theme["green-500"]};
+
+    &:not(:disabled):hover {
+      background: ${theme["green-700"]};
+    }
+  `}
+`;
+
+export const StopCountDownButton = styled(BasetCountDownButton)`
+  ${({ theme }) => css`
+    background: ${theme["red-500"]};
+
+    &:not(:disabled):hover {
+      background: ${theme["red-700"]};
+    }
+  `}
 `;
