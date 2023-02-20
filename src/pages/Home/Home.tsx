@@ -8,10 +8,11 @@ import {
   StartCountDownButton,
   StopCountDownButton,
 } from "./styles";
-import { createContext, useEffect, useState } from "react";
 import { NewCycleForm } from "./components/NewCycleForm";
 import { CountDown } from "./components/Countdown";
 import { FormProvider } from "react-hook-form";
+import { useContext } from "react";
+import { CyclesContext } from "../../contexts/CyclesContext";
 
 
 const newCycleFormValidationSchema = zod.object({
@@ -25,6 +26,7 @@ const newCycleFormValidationSchema = zod.object({
 type NewCycleFormatData = zod.infer<typeof newCycleFormValidationSchema>;
 
 export function Home() {
+  const {activeCycle, createNewCycle, interruptCurrentCycle} = useContext(CyclesContext)
 
   const newCycleForm = useForm<NewCycleFormatData>({
     resolver: zodResolver(newCycleFormValidationSchema),
@@ -34,52 +36,21 @@ export function Home() {
     },
   });
 
-  const { handleSubmit, watch, reset } = newCycleForm;
-
-  function handleCreateNewCycle(data: NewCycleFormatData) {
-    const id = String(new Date().getTime());
-
-    const newCycle: Cycle = {
-      id,
-      task: data.task,
-      minutesAmount: data.minutesAmount,
-      startDate: new Date(),
-    };
-
-    setCycles((state) => [...state, newCycle]);
-    setActiveCycleId(newCycle.id);
-    setAmountSecondsPassed(0);
-
-    reset();
-  }
-
-  function handleInterruptCycle() {
-    setActiveCycleId(null);
-
-    setCycles((state) =>
-      state.map((cycle) => {
-        if (cycle.id === activeCycleId) {
-          return { ...cycle, interruptedDate: new Date() };
-        } else {
-          return cycle;
-        }
-      })
-    );
-  }
+  const { handleSubmit, watch, /*reset */} = newCycleForm;
 
   const task = watch("task");
   const isSubmitDisabled = !task;
 
   return (
     <HomeContainer>
-      <form onSubmit={handleSubmit(handleCreateNewCycle)}>        
+      <form onSubmit={handleSubmit(createNewCycle)}>        
           <FormProvider {...newCycleForm}>
             <NewCycleForm />
           </FormProvider>
           <CountDown />
 
         {activeCycle ? (
-          <StopCountDownButton onClick={handleInterruptCycle} type="button">
+          <StopCountDownButton onClick={interruptCurrentCycle} type="button">
             <HandPalm size={24} />
             Interromper
           </StopCountDownButton>
