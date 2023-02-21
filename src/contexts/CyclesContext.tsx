@@ -44,26 +44,39 @@ export function CyclesContextProvider({
       /* Valor em tempo real */ state: CyclesState,
       /* indica ação que pode ser realizada */ action: any
     ) => {
-      if (action.type === "ADD_NEW_CYCLE") {
-        return {
-          ...state,
-          cycles: [...state.cycles, action.payload.newCycle],
-          activeCycleId: action.payload.newCycle.id,
-        };
-      }
-
-      if (action.type === "INTERRUPT_CURRENT_CYCLE") {
-        return {
-          ...state,
-          cycles: state.cycles.map((cycle) => {
-            if (cycle.id === state.activeCycleId) {
-              return { ...cycle, interruptedDate: new Date() };
-            } else {
-              return cycle;
-            }
-          }),
-          activeCycleId: null,
-        };
+      switch (action.type) {
+        case "ADD_NEW_CYCLE":
+          return {
+            ...state,
+            cycles: [...state.cycles, action.payload.newCycle],
+            activeCycleId: action.payload.newCycle.id,
+          };
+        case "INTERRUPT_CURRENT_CYCLE":
+          return {
+            ...state,
+            cycles: state.cycles.map((cycle) => {
+              if (cycle.id === state.activeCycleId) {
+                return { ...cycle, interruptedDate: new Date() };
+              } else {
+                return cycle;
+              }
+            }),
+            activeCycleId: null,
+          };
+        case "MARK_CURRENT_CYCLE_AS_FINESHED":
+          return {
+            ...state,
+            cycles: state.cycles.map((cycle) => {
+              if (cycle.id === state.activeCycleId) {
+                return { ...cycle, finishedDate: new Date() };
+              } else {
+                return cycle;
+              }
+            }),
+            activeCycleId: null,
+          };
+        default:
+          return state;
       }
 
       console.log(state);
@@ -93,16 +106,6 @@ export function CyclesContextProvider({
         activeCycle,
       },
     });
-
-    // setCycles((state) =>
-    //   state.map((cycle) => {
-    //     if (cycle.id === activeCycleId) {
-    //       return { ...cycle, finishedDate: new Date() };
-    //     } else {
-    //       return cycle;
-    //     }
-    //   })
-    // );
   }
 
   function createNewCycle(data: CreateCycleData) {
