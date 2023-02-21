@@ -1,3 +1,5 @@
+import { ActionTypes } from "./actions";
+
 export interface Cycle {
   id: string;
   task: string;
@@ -12,11 +14,7 @@ interface CyclesState {
   activeCycleId: string | null;
 }
 
-export enum ActionTypes {
-  ADD_NEW_CYCLE = "ADD_NEW_CYCLE",
-  INTERRUPT_CURRENT_CYCLE = "INTERRUPT_CURRENT_CYCLE",
-  MARK_CURRENT_CYCLE_AS_FINESHED = "MARK_CURRENT_CYCLE_AS_FINESHED",
-}
+
 
 export function cyclesReducer(state: CyclesState, action: any) {
   switch (action.type) {
@@ -26,7 +24,7 @@ export function cyclesReducer(state: CyclesState, action: any) {
         cycles: [...state.cycles, action.payload.newCycle],
         activeCycleId: action.payload.newCycle.id,
       };
-    case ActionTypes.ADD_NEW_CYCLE:
+    case ActionTypes.INTERRUPT_CURRENT_CYCLE:
       return {
         ...state,
         cycles: state.cycles.map((cycle) => {
@@ -38,7 +36,7 @@ export function cyclesReducer(state: CyclesState, action: any) {
         }),
         activeCycleId: null,
       };
-    case ActionTypes.ADD_NEW_CYCLE:
+    case ActionTypes.MARK_CURRENT_CYCLE_AS_FINESHED:
       return {
         ...state,
         cycles: state.cycles.map((cycle) => {
